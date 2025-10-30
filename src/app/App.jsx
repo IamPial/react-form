@@ -23,6 +23,14 @@ const App = () => {
       ...values,
       [e.target.name]: e.target.value,
     });
+    const key = e.target.name;
+    const { errors } = CheckValidity(values);
+    if (!errors[key]) {
+      setErrors((prev) => ({
+        ...prev,
+        [key]: "",
+      }));
+    }
   };
 
   const handleSubmit = (e) => {
