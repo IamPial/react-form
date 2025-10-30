@@ -44,6 +44,7 @@ const InputGroup = ({
         onChange={onChange}
         onFocus={onFocus}
         onBlur={onBlur}
+        error={error}
       />
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </Container>

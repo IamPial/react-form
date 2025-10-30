@@ -11,6 +11,7 @@ const init = {
 // After salat & lunch , then work with functionalities
 const App = () => {
   const [values, setValues] = useState({ ...init });
+  const [errors, setErrors] = useState({ ...init });
 
   const handleChange = (e) => {
     setValues({
@@ -21,7 +22,31 @@ const App = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(values);
+    const { isValid, errors } = CheckValidity(values);
+    if (isValid) {
+      console.log(values);
+      setErrors({ ...errors });
+    } else {
+      setErrors({ ...errors });
+    }
+  };
+
+  const CheckValidity = (values) => {
+    const errors = {};
+    const { title, bio, skills } = values;
+    if (!title) {
+      errors.title = "Invalid Title";
+    }
+    if (!bio) {
+      errors.bio = "Invalid Bio";
+    }
+    if (!skills) {
+      errors.skills = "Invalid Skills";
+    }
+    return {
+      errors,
+      isValid: Object.keys(errors).length === 0,
+    };
   };
 
   return (
@@ -36,6 +61,7 @@ const App = () => {
             placeholder={"Software Engineer"}
             value={values.title}
             onChange={handleChange}
+            error={errors.title}
           />
           <InputGroup
             name={"bio"}
@@ -43,6 +69,7 @@ const App = () => {
             placeholder={"Software Engineer"}
             value={values.bio}
             onChange={handleChange}
+            error={errors.bio}
           />
           <InputGroup
             name={"skills"}
@@ -50,6 +77,7 @@ const App = () => {
             placeholder={"Software Engineer"}
             value={values.skills}
             onChange={handleChange}
+            error={errors.skills}
           />
           <Button
             bg={"primary"}
