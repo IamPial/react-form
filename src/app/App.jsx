@@ -12,6 +12,11 @@ const init = {
 const App = () => {
   const [values, setValues] = useState({ ...init });
   const [errors, setErrors] = useState({ ...init });
+  const [focus, setFocus] = useState({
+    title: false,
+    bio: false,
+    skills: false,
+  });
 
   const handleChange = (e) => {
     setValues({
@@ -31,17 +36,40 @@ const App = () => {
     }
   };
 
+  const handleFocus = (e) => {
+    setFocus((prev) => ({
+      ...prev,
+      [e.target.name]: true,
+    }));
+  };
+
+  const handleBlur = (e) => {
+    const key = e.target.name;
+    const { errors } = CheckValidity(values);
+    if (errors[key] && focus[key]) {
+      setErrors((prev) => ({
+        ...prev,
+        [key]: errors[key],
+      }));
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        [key]: "",
+      }));
+    }
+  };
+
   const CheckValidity = (values) => {
     const errors = {};
     const { title, bio, skills } = values;
     if (!title) {
-      errors.title = "Invalid Title";
+      errors.title = "Please filled the required field *";
     }
     if (!bio) {
-      errors.bio = "Invalid Bio";
+      errors.bio = "Please filled the required field *";
     }
     if (!skills) {
-      errors.skills = "Invalid Skills";
+      errors.skills = "Please filled the required field *";
     }
     return {
       errors,
@@ -60,24 +88,30 @@ const App = () => {
             label={"Title:"}
             placeholder={"Software Engineer"}
             value={values.title}
-            onChange={handleChange}
             error={errors.title}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           />
           <InputGroup
             name={"bio"}
             label={"Bio:"}
             placeholder={"Software Engineer"}
             value={values.bio}
-            onChange={handleChange}
             error={errors.bio}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           />
           <InputGroup
             name={"skills"}
             label={"Skills:"}
             placeholder={"Software Engineer"}
             value={values.skills}
-            onChange={handleChange}
             error={errors.skills}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           />
           <Button
             bg={"primary"}
