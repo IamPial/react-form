@@ -1,87 +1,102 @@
 import InputGroup from "../components/shared/forms/InputGroup";
 import Button from "../components/ui/buttons/Button";
 import { useState } from "react";
+import { deepClone, isEmpty, mapStateToValues } from "../utils/object-utility";
 
 const init = {
-  title: "",
-  bio: "",
-  skills: "",
+  title: {
+    value: "",
+    error: "",
+    focus: false,
+  },
+  bio: {
+    value: "",
+    error: "",
+    focus: false,
+  },
+  skills: {
+    value: "",
+    error: "",
+    focus: false,
+  },
 };
 
-// After salat & lunch , then work with functionalities
 const App = () => {
-  const [values, setValues] = useState({ ...init });
-  const [errors, setErrors] = useState({ ...init });
-  const [focus, setFocus] = useState({
-    title: false,
-    bio: false,
-    skills: false,
-  });
+  const [state, setState] = useState({ ...init });
 
+  // DONE: Handling Error with Change Event
   const handleChange = (e) => {
-    setValues({
-      ...values,
-      [e.target.name]: e.target.value,
-    });
-    const key = e.target.name;
-    const { errors } = CheckValidity(values);
-    if (!errors[key]) {
-      setErrors((prev) => ({
-        ...prev,
-        [key]: "",
-      }));
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const { isValid, errors } = CheckValidity(values);
-    if (isValid) {
-      console.log(values);
-      setErrors({ ...errors });
-    } else {
-      setErrors({ ...errors });
-    }
-  };
-
-  const handleFocus = (e) => {
-    setFocus((prev) => ({
+    const { name: key, value } = e.target;
+    setState((prev) => ({
       ...prev,
-      [e.target.name]: true,
+      [key]: {
+        ...prev[key],
+        value: value,
+      },
     }));
-  };
 
+    const oldState = deepClone(state);
+    oldState[key].value = value;
+    const values = mapStateToValues(oldState);
+    const { errors } = CheckErrorHandling(values);
+    if (oldState[key].focus && errors[key]) {
+      oldState[key].error = errors[key];
+    } else {
+      oldState[key].error = "";
+    }
+    setState(oldState);
+  };
+  const handleSubmit = (e) => {
+    // DONE: Handling Error For empty submit?
+    e.preventDefault();
+    const values = mapStateToValues(state);
+
+    const { isValid, errors } = CheckErrorHandling(values);
+
+    if (isValid) {
+      console.log(state);
+    } else {
+      console.log(errors);
+      const oldState = deepClone(state);
+      Object.keys(oldState).forEach((key) => {
+        oldState[key].error = errors[key];
+      });
+      setState(oldState);
+    }
+  };
+  const handleFocus = (e) => {
+    const oldState = deepClone(state);
+    oldState[e.target.name].focus = true;
+    setState(oldState);
+  };
   const handleBlur = (e) => {
     const key = e.target.name;
-    const { errors } = CheckValidity(values);
-    if (errors[key] && focus[key]) {
-      setErrors((prev) => ({
-        ...prev,
-        [key]: errors[key],
-      }));
+    const values = mapStateToValues(state);
+    const { errors } = CheckErrorHandling(values);
+    const oldState = deepClone(state);
+    if (oldState[key].focus && errors[key]) {
+      oldState[key].error = errors[key];
     } else {
-      setErrors((prev) => ({
-        ...prev,
-        [key]: "",
-      }));
+      oldState[key].error = "";
     }
+    setState(oldState);
   };
 
-  const CheckValidity = (values) => {
+  const CheckErrorHandling = (values) => {
     const errors = {};
-    const { title, bio, skills } = values;
+    const { title, skills, bio } = values;
     if (!title) {
-      errors.title = "Please filled the required field *";
+      errors.title = "Please provide title*";
     }
     if (!bio) {
-      errors.bio = "Please filled the required field *";
+      errors.bio = "Please provide bio*";
     }
     if (!skills) {
-      errors.skills = "Please filled the required field *";
+      errors.skills = "Please provide skills*";
     }
     return {
       errors,
-      isValid: Object.keys(errors).length === 0,
+      isValid: isEmpty(errors),
     };
   };
 
@@ -95,8 +110,8 @@ const App = () => {
             name={"title"}
             label={"Title:"}
             placeholder={"Software Engineer"}
-            value={values.title}
-            error={errors.title}
+            value={state.title.value}
+            error={state.title.error}
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -105,8 +120,8 @@ const App = () => {
             name={"bio"}
             label={"Bio:"}
             placeholder={"Software Engineer"}
-            value={values.bio}
-            error={errors.bio}
+            value={state.bio.value}
+            error={state.bio.error}
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -115,8 +130,8 @@ const App = () => {
             name={"skills"}
             label={"Skills:"}
             placeholder={"Software Engineer"}
-            value={values.skills}
-            error={errors.skills}
+            value={state.skills.value}
+            error={state.skills.error}
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
